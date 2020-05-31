@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page - Kacper Pindelski</title>
+<link href="{{url_for('static', filename = 'css/style.css')}}" rel="stylesheet">
+</head>
+<body>
+	<div class="box">
+		<div class="footer">
+			<div class="author"><p class="name">Kacper Pindelski - Python model presentation</p></div>
+
+			<div class="social">
+				<table width="100%">
+					<tr>
+						<td width="20%"><a href="https://www.facebook.com"><image src="{{url_for('static', filename = 'images/facebook.png')}}" onmouseover="this.src = '{{url_for('static', filename = 'images/fb-hover.svg')}}'" onmouseout="this.src = '{{url_for('static', filename = 'images/facebook.png')}}'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.instagram.com"><image src="{{url_for('static', filename = 'images/instagram.png')}}" onmouseover="this.src = '{{url_for('static', filename = 'images/instagram-hover.png')}}'" onmouseout="this.src = '{{url_for('static', filename = 'images/instagram.png')}}'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.linkedin.com"><image src="{{url_for('static', filename = 'images/linkedin.png')}}" onmouseover="this.src = '{{url_for('static', filename = 'images/linkedin-hover.png')}}'" onmouseout="this.src = '{{url_for('static', filename = 'images/linkedin.png')}}'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.twitter.com"><image src="{{url_for('static', filename = 'images/twitter.png')}}" onmouseover="this.src = '{{url_for('static', filename = 'images/twitter-hover.png')}}'" onmouseout="this.src = '{{url_for('static', filename = 'images/twitter.png')}}'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.github.com"><image src="{{url_for('static', filename = 'images/github.png')}}" onmouseover="this.src = '{{url_for('static', filename = 'images/github-hover.png')}}'" onmouseout="this.src = '{{url_for('static', filename = 'images/github.png')}}'" width="40px" height="40px"></a></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="main">
+			<div class="left_bar">
+				<h1>PYTHON CODE REVIEW</h1>
+					
+						<textarea class="code" cols="50" rows="30" readonly>
+import numpy as np
+import pandas as pd
+import sqlite3
+from flask import Flask, render_template, request
+app = Flask(__name__)
+df = pd.read_csv("https://sebkaz.github.io/teaching/PrzetwarzanieDanych/data/polish_names.csv")
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+def string_into_number(string):
+    return int(string == 'm')
+
+def is_last_a(string):
+    return int(string[-1] == 'a')
+
+def name_length(string):
+    return int(len(string))
+
+df['target'] = df['gender'].map(string_into_number)
+
+df['len_name'] = df['name'].map(name_length)
+
+df['is_last_a'] = df['name'].map(is_last_a)
+
+y = df['target'].values
+X = df[['len_name','is_last_a']].values
+
+model2 = LogisticRegression()
+model2.fit(X,y)
+y_pred_lr = model2.predict(X)
+accuracy_score(y, y_pred_lr)
+dd = np.array([[name_length("Tomasz"), is_last_a("Tomasz")]])
+test_prediction = model2.predict(dd)
+
+@app.route('/', methods=['GET','POST'])
+def check_gender():
+    
+    
+    uploaded_name = ' '
+    if request.method == 'POST':
+        uploaded_name = request.form['name']
+    
+    if (uploaded_name == ' '):
+        return render_template('index.html')
+    if (uploaded_name == ''):
+        return render_template('index.html', blad='Something gonna wrong, please enter again your name')
+        
+    if (model2.predict(np.array([[name_length(uploaded_name), is_last_a(uploaded_name)]])) == 0):
+        conn = sqlite3.connect('project.db')
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS names
+                 (id_proc INTEGER PRIMARY KEY AUTOINCREMENT, name text , gender text)''')
+        c.execute("INSERT INTO names (name, gender) VALUES (?,?)",(uploaded_name,'Woman'))
+        conn.commit()        
+        return render_template('index.html', user=uploaded_name, gender='Woman')    
+    if (model2.predict(np.array([[name_length(uploaded_name), is_last_a(uploaded_name)]])) == 1):
+        conn = sqlite3.connect('project.db')
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS names
+                 (id_proc INTEGER PRIMARY KEY AUTOINCREMENT, name text , gender text)''')
+        c.execute("INSERT INTO names (name, gender) VALUES (?,?)",(uploaded_name,'Man'))
+        conn.commit()        
+        return render_template('index.html', user=uploaded_name, gender='Man')
+    else:
+        return render_template('index.html', blad='Something gone wrong, please enter your name again')
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
+	</textarea>
+					
+			</div>					
+				<div class="right_bar">
+				{% block content %}
+					<h1>CHECK GENDER OF POLISH NAMES (PROBABLY)</h1>
+				
+					<form action="{{ url_for('check_gender') }}" method="POST">
+						<input class="myText" type="text" name="name" placeholder="Input your name" />
+						<input  class="myButton bouncy" type="submit" value="Check it!" />
+					</form>
+					{% if user %}
+					<p style="color:white; font-size:20px;">
+					{{ user }} is a {{ gender }} {{ test }}
+					{% else %}
+					{{ blad }}
+					</p>
+					{% endif %}			
+				{% endblock %}				
+				</div>		
+		</div>		
+	</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

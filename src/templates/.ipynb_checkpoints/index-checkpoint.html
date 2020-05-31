@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page - Kacper Pindelski</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div class="box">
+		<div class="footer">
+			<div class="author"><p class="name">Kacper Pindelski - Python model presentation</p></div>
+			<div class="social">
+				<table width="100%">
+					<tr>
+						<td width="20%"><a href="https://www.facebook.com"><img src="images/facebook.png" onmouseover="this.src = 'images/fb-hover.svg'" onmouseout="this.src = 'images/facebook.png'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.instagram.com"><img src="images/instagram.png" onmouseover="this.src = 'images/instagram-hover.png'" onmouseout="this.src = 'images/instagram.png'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.linkedin.com"><img src="images/linkedin.png" onmouseover="this.src = 'images/linkedin-hover.png'" onmouseout="this.src = 'images/linkedin.png'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.twitter.com"><img src="images/twitter.png" onmouseover="this.src = 'images/twitter-hover.png'" onmouseout="this.src = 'images/twitter.png'" width="40px" height="40px"></a></td>
+						<td width="20%"><a href="https://www.github.com"><img src="images/github.png" onmouseover="this.src = 'images/github-hover.png'" onmouseout="this.src = 'images/github.png'" width="40px" height="40px"></a></td>
+					</tr>
+				</table>
+			</div>
+
+		</div>
+		<div class="main">
+			<div class="left_bar">
+				<h1>PYTHON CODE REVIEW</h1>
+					
+						<textarea class="code" cols="50" rows="30" readonly>
+import numpy as np
+import pandas as pd
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+df = pd.read_csv("https://sebkaz.github.io/teaching/PrzetwarzanieDanych/data/polish_names.csv")
+
+def string_into_number(string):
+    return int(string == 'm')
+	
+def is_last_a(string):
+    return int(string[-1] == 'a')
+	
+def name_length(string):
+    return int(len(string))
+	
+df['target'] = df['gender'].map(string_into_number)
+df['len_name'] = df['name'].map(name_length)
+df['is_last_a'] = df['name'].map(is_last_a)
+
+y = df['target'].values
+X = df[['len_name','is_last_a']].values
+
+model2 = LogisticRegression()
+model2.fit(X,y)
+
+y_pred_lr = model2.predict(X)
+accuracy_score(y, y_pred_lr)
+
+dd = np.array([[name_length("Tomasz"), is_last_a("Tomasz")]])
+test_prediction = model2.predict(dd)
+
+@app.route('/', methods=['GET','POST'])
+def index():
+    return render_template('index.html', title='Check Your Gender')
+	</textarea>
+					
+			</div>
+			<div class="right_bar">
+			<h1>CHECK WHAT IS YOUR GENDER (PROPABLY)</h1>
+				<form method="POST">
+					<input class="myText" type="text" value="Input your name" />
+					<input  class="myButton bouncy" type="submit" value="Check it!" />
+				</form>
+				
+				
+			</div>
+		</div>
+		
+	</div>
+
+</body>
+</html>
